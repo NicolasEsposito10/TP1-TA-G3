@@ -1,0 +1,8 @@
+[wokwi]
+version = 1
+firmware = '.pio/build/esp32dev/firmware.bin'
+elf = '.pio/build/esp32dev/firmware.elf'
+
+[[wokwi.libs]]
+name = "DHT22"
+version = "1.0.0"
