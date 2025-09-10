@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <Adafruit_GFX.h>
+//#include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include "Device.h"
 
@@ -13,16 +13,24 @@
 Adafruit_SSD1306 display(128, 64, &Wire);
 Device device(DHTPIN, DHTTYPE, POTPIN, LED_VENT, LED_RIEGO, BUTTON, &display);
 
-void setup() {
+void setup()
+{
     Serial.begin(115200);
-    if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    while(!Serial); // Espera a que se abra el monitor serie
+    if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
+    {
         Serial.println("Error al inicializar OLED");
-        for (;;);
+        for (;;)
+            ;
     }
+    Serial.println("Sistema iniciado");
     device.begin();
+    
+    Serial.println("Sistema iniciado");
 }
 
-void loop() {
+void loop()
+{
     device.update();
     delay(500);
 }
