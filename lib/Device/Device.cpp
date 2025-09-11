@@ -14,6 +14,7 @@ Device::Device(uint8_t dhtPin, uint8_t dhtType, uint8_t potPin, uint8_t ledVent,
 
 void Device::begin()
 {
+    // Inicializa el sensor DHT
     dht.begin();
     // Se define el pin como output ya que un led espera recibir señales para funcionar
     pinMode(ledVent, OUTPUT);
@@ -48,7 +49,7 @@ void Device::update()
     handleButton();
     temp = dht.readTemperature();
     hum = dht.readHumidity();
-    refTemp = map(analogRead(potPin), 0, 4095, 15, 35);
+    refTemp = map(analogRead(potPin), 0, 4095, 15, 35); // Lee el potenciómetro y lo mapea a un rango de temperatura de referencia
     controlVentilacion();
     controlRiego();
     showScreen();
@@ -56,6 +57,7 @@ void Device::update()
 
 void Device::handleButton()
 {
+    // Cambia entre las dos pantallas del OLED cuando se presiona el botón.
     if (digitalRead(buttonPin) == LOW)
     {
         delay(200);
@@ -135,6 +137,7 @@ void Device::showScreen()
     display->display();
 }
 
+// Getters
 float Device::getTemperature() { return temp; }
 float Device::getHumidity() { return hum; }
 int Device::getRefTemp() { return refTemp; }
