@@ -2,8 +2,8 @@
 #include "Device.h"
 
 // Constructor de la clase device, inicializa pines, leds, sensor y pantalla
-Device::Device(uint8_t dhtPin, uint8_t dhtType, uint8_t potPin, uint8_t ledVent, uint8_t ledRiego, uint8_t buttonPin, Adafruit_SSD1306 *display)
-    : dht(dhtPin, dhtType), display(display), potPin(potPin), ledVent(ledVent), ledRiego(ledRiego), buttonPin(buttonPin)
+Device::Device(uint8_t dhtPin, uint8_t dhtType, uint8_t potPin, uint8_t ledVerde, uint8_t buttonPin, Adafruit_SSD1306 *display)
+    : dht(dhtPin, dhtType), display(display), potPin(potPin), ledVerde(ledVerde), buttonPin(buttonPin)
 {
     pantalla = 0;
     ventiladorActivo = false;
@@ -17,8 +17,7 @@ void Device::begin()
     // Inicializa el sensor DHT
     dht.begin();
     // Se define el pin como output ya que un led espera recibir señales para funcionar
-    pinMode(ledVent, OUTPUT);
-    pinMode(ledRiego, OUTPUT);
+    pinMode(ledVerde, OUTPUT);
     // Se define el pin como input ya que espera recibir señales (pulsación del botón) para mandar un mensaje.
     // PULLUP signigica que el pin estará en HIGH (levantado) hasta que se conecte a GND (pulsación del botón)
     pinMode(buttonPin, INPUT_PULLUP);
@@ -28,7 +27,8 @@ void Device::begin()
     // humedadUmbral = random(40, 61);
     humedadUmbral = 40 + esp_random() % 21; // Valor verdaderamente aleatorio entre 40 y 60
 
-    Serial.print("Sistema iniciado. Umbral de humedad: ");
+    Serial.println("Sistema iniciado.");
+    Serial.print("Umbral de humedad: ");
     Serial.print(humedadUmbral);
     Serial.println("%");
 
@@ -50,8 +50,10 @@ void Device::update()
     temp = dht.readTemperature();
     hum = dht.readHumidity();
     refTemp = map(analogRead(potPin), 0, 4095, 15, 35); // Lee el potenciómetro y lo mapea a un rango de temperatura de referencia
-    controlVentilacion();
-    controlRiego();
+    if (pantalla == 0)
+        controlVentilacion();
+    else
+        controlRiego();
     showScreen();
 }
 
@@ -62,6 +64,15 @@ void Device::handleButton()
     {
         delay(200);
         pantalla = (pantalla + 1) % 2;
+        if(pantalla == 0)
+            Serial.println("-Cambio a Pantalla TEMPERATURA");
+        else
+            Serial.println("-Cambio a Pantalla HUMEDAD");
+        // Aseguramos que el botón se haya soltado antes de continuar
+        while (digitalRead(buttonPin) == LOW)
+        {
+            delay(10); 
+        }
     }
 }
 
@@ -72,14 +83,14 @@ void Device::controlVentilacion()
         if (!ventiladorActivo)
             Serial.println("Ventilacion ACTIVADA");
         ventiladorActivo = true;
-        digitalWrite(ledVent, HIGH);
+        digitalWrite(ledVerde, HIGH);
     }
     else
     {
         if (ventiladorActivo)
             Serial.println("Ventilacion DESACTIVADA");
         ventiladorActivo = false;
-        digitalWrite(ledVent, LOW);
+        digitalWrite(ledVerde, LOW);
     }
 }
 
@@ -87,6 +98,7 @@ void Device::controlRiego()
 {
     if (hum < humedadUmbral)
     {
+        // Se evita imprimir el mensaje repetivamente
         if (!riegoActivo)
             Serial.println("Riego ACTIVADO");
         riegoActivo = true;
@@ -94,7 +106,7 @@ void Device::controlRiego()
         {
             ultimoParpadeo = millis();
             estadoLedRiego = !estadoLedRiego;
-            digitalWrite(ledRiego, estadoLedRiego);
+            digitalWrite(ledVerde, estadoLedRiego);
         }
     }
     else
@@ -102,7 +114,7 @@ void Device::controlRiego()
         if (riegoActivo)
             Serial.println("Riego DESACTIVADO");
         riegoActivo = false;
-        digitalWrite(ledRiego, LOW);
+        digitalWrite(ledVerde, LOW);
     }
 }
 

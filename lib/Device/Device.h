@@ -11,7 +11,7 @@ class Device
 {
     // public: se utiliza para definir los métodos y atributos accesibles desde fuera de la clase
 public: // Se utiliza uint8_t para pines y tipos ya que son valores pequeños y se busca ahorrar memoria (1byte; 0 - 255)
-    Device(uint8_t dhtPin, uint8_t dhtType, uint8_t potPin, uint8_t ledVent, uint8_t ledRiego, uint8_t buttonPin, Adafruit_SSD1306 *display);
+    Device(uint8_t dhtPin, uint8_t dhtType, uint8_t potPin, uint8_t ledVerde, uint8_t buttonPin, Adafruit_SSD1306 *display);
     void begin();              // Inicializa los componentes del dispositivo
     void update();             // Actualiza el estado del dispositivo en base a las entradas y valores de los sensores
     void handleButton();       // Maneja la pulsación del botón para cambiar la pantalla
@@ -28,7 +28,7 @@ private:
     DHT dht;                   // dhtPin y dhType  ya están incluidos en objeto dht
     Adafruit_SSD1306 *display; // Puntero al valor de memoria ocupado por la instancia de la pantalla OLED
                                // Evita duplicados innecesarios de la pantalla en memoria
-    uint8_t potPin, ledVent, ledRiego, buttonPin;
+    uint8_t potPin, ledVerde, buttonPin;
     int pantalla;
     int humedadUmbral;
     bool ventiladorActivo;
