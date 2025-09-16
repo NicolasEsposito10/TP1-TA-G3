@@ -1,34 +1,32 @@
-// Importa la cabecera de la clase Device para así poder utilizar sus definiciones
 #include "Device.h"
 
-// Constructor de la clase device, inicializa pines, leds, sensor y pantalla
-Device::Device(uint8_t dhtPin, uint8_t dhtType, uint8_t potPin, uint8_t ledVerde, uint8_t buttonPin, Adafruit_SSD1306 *display)
-    : dht(dhtPin, dhtType), display(display), potPin(potPin), ledVerde(ledVerde), buttonPin(buttonPin)
+Device::Device(uint8_t dhtPin, uint8_t dhtType, uint8_t potPin,
+               uint8_t ledVerde, uint8_t encA, uint8_t encB, uint8_t encBtn,
+               Adafruit_SSD1306 *display)
+    : dht(dhtPin, dhtType), display(display),
+      potPin(potPin), ledVerde(ledVerde),
+      encA(encA), encB(encB), encBtn(encBtn)
 {
     pantalla = 0;
     ventiladorActivo = false;
     riegoActivo = false;
     ultimoParpadeo = 0;
     estadoLedRiego = false;
+    lastA = HIGH;
 }
 
 void Device::begin()
 {
-    // Inicializa el sensor DHT
     dht.begin();
-    // Se define el pin como output ya que un led espera recibir señales para funcionar
     pinMode(ledVerde, OUTPUT);
-    // Se define el pin como input ya que espera recibir señales (pulsación del botón) para mandar un mensaje.
-    // PULLUP signigica que el pin estará en HIGH (levantado) hasta que se conecte a GND (pulsación del botón)
-    pinMode(buttonPin, INPUT_PULLUP);
 
-    // De esta manera, el valor aleatorio quedaba seteado siempre en 46
-    // randomSeed(analogRead(0));
-    // humedadUmbral = random(40, 61);
-    humedadUmbral = 40 + esp_random() % 21; // Valor verdaderamente aleatorio entre 40 y 60
+    pinMode(encA, INPUT_PULLUP);
+    pinMode(encB, INPUT_PULLUP);
+    pinMode(encBtn, INPUT_PULLUP);
 
-    Serial.println("Sistema iniciado.");
-    Serial.print("Umbral de humedad: ");
+    humedadUmbral = 40 + esp_random() % 21;
+
+    Serial.print("Sistema iniciado. Umbral de humedad: ");
     Serial.print(humedadUmbral);
     Serial.println("%");
 
@@ -46,10 +44,10 @@ void Device::begin()
 
 void Device::update()
 {
-    handleButton();
+    handleEncoder();
     temp = dht.readTemperature();
     hum = dht.readHumidity();
-    refTemp = map(analogRead(potPin), 0, 4095, 15, 35); // Lee el potenciómetro y lo mapea a un rango de temperatura de referencia
+    refTemp = map(analogRead(potPin), 0, 4095, 15, 35);
     if (pantalla == 0)
         controlVentilacion();
     else
@@ -57,23 +55,23 @@ void Device::update()
     showScreen();
 }
 
-void Device::handleButton()
+void Device::handleEncoder()
 {
-    // Cambia entre las dos pantallas del OLED cuando se presiona el botón.
-    if (digitalRead(buttonPin) == LOW)
+    int A = digitalRead(encA);
+    if (A != lastA && A == LOW)
     {
-        delay(200);
-        pantalla = (pantalla + 1) % 2;
-        if(pantalla == 0)
-            Serial.println("-Cambio a Pantalla TEMPERATURA");
-        else
-            Serial.println("-Cambio a Pantalla HUMEDAD");
-        // Aseguramos que el botón se haya soltado antes de continuar
-        while (digitalRead(buttonPin) == LOW)
+        if (digitalRead(encB) == LOW)
         {
-            delay(10); 
+            pantalla = (pantalla + 1) % 2; // Giro derecha
         }
+        else
+        {
+            pantalla = (pantalla - 1 + 2) % 2; // Giro izquierda
+        }
+        Serial.print("Cambio a Pantalla: ");
+        Serial.println(pantalla == 0 ? "TEMPERATURA" : "HUMEDAD");
     }
+    lastA = A;
 }
 
 void Device::controlVentilacion()
@@ -98,7 +96,6 @@ void Device::controlRiego()
 {
     if (hum < humedadUmbral)
     {
-        // Se evita imprimir el mensaje repetivamente
         if (!riegoActivo)
             Serial.println("Riego ACTIVADO");
         riegoActivo = true;
