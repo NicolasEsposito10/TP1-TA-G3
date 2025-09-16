@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <Adafruit_SSD1306.h>
-#include "Device.h"
+#include "Device.h" // Nuestra libreria :D
+
 
 const int DHTPIN = GPIO_NUM_33;
 #define DHTTYPE DHT22
@@ -12,13 +13,13 @@ const int ENC_A = GPIO_NUM_18;
 const int ENC_B = GPIO_NUM_5;
 const int ENC_BTN = GPIO_NUM_19;
 
-Adafruit_SSD1306 display(128, 64, &Wire);
-Device device(DHTPIN, DHTTYPE, POTPIN, PIN_LED, ENC_A, ENC_B, ENC_BTN, &display);
+Adafruit_SSD1306 display(128, 64, &Wire); // Objeto para controlar el OLED
+Device device(DHTPIN, DHTTYPE, POTPIN, PIN_LED, ENC_A, ENC_B, ENC_BTN, &display); // Objeto clase device con los pines y referencia al oled
 
 void setup()
 {
     Serial.begin(115200);
-    while (!Serial)
+    while (!Serial) //espera a que el puerto serie esté listo
         ;
     if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
     {
