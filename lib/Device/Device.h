@@ -24,8 +24,8 @@ public:
     bool isRiegoActivo();
 
 private:
-    DHT dht;
-    Adafruit_SSD1306 *display;
+    DHT dht; // Declara un objeto de la clase DHT 
+    Adafruit_SSD1306 *display; // Declara un puntero a un objeto de la clase Adafruit_SSD1306, que controla la pantalla OLED.
     uint8_t potPin, ledVerde;
     uint8_t encA, encB, encBtn;
 
@@ -40,6 +40,7 @@ private:
 
     int lastA;
 
+    // Metodos que solo púede usar la propia clase
     void controlVentilacion();
     void controlRiego();
     void handleEncoder();

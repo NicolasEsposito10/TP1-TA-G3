@@ -5,7 +5,7 @@ Device::Device(uint8_t dhtPin, uint8_t dhtType, uint8_t potPin,
                Adafruit_SSD1306 *display)
     : dht(dhtPin, dhtType), display(display),
       potPin(potPin), ledVerde(ledVerde),
-      encA(encA), encB(encB), encBtn(encBtn)
+      encA(encA), encB(encB), encBtn(encBtn) //Constructor
 {
     pantalla = 0;
     ventiladorActivo = false;
@@ -24,7 +24,7 @@ void Device::begin()
     pinMode(encB, INPUT_PULLUP);
     pinMode(encBtn, INPUT_PULLUP);
 
-    humedadUmbral = 40 + esp_random() % 21;
+    humedadUmbral = 40 + esp_random() % 21; // Umbral aleatorio
 
     Serial.print("Sistema iniciado. Umbral de humedad: ");
     Serial.print(humedadUmbral);
