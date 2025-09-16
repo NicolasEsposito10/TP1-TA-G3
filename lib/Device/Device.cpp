@@ -44,11 +44,13 @@ void Device::begin()
 
 void Device::update()
 {
-    handleEncoder();
-    temp = dht.readTemperature();
-    hum = dht.readHumidity();
-    refTemp = map(analogRead(potPin), 0, 4095, 15, 35);
-    if (pantalla == 0)
+    handleEncoder(); // Lee el estado del encoder y cambia la pantalla si se gira
+    temp = dht.readTemperature(); // Lee la temperatura actual del sensor 
+    hum = dht.readHumidity(); // Lee la humedad
+    refTemp = map(analogRead(potPin), 0, 4095, 15, 35); // Lee el valor del potenciómetro y lo convierte a un rango de temperatura de referencia (15 a 35°C).
+
+    // si esta seleccionada la pantalla de ventilacion la controla, en su defecto controla la de riego
+    if (pantalla == 0)  
         controlVentilacion();
     else
         controlRiego();
@@ -58,15 +60,15 @@ void Device::update()
 void Device::handleEncoder()
 {
     int A = digitalRead(encA);
-    if (A != lastA && A == LOW)
+    if (A != lastA && A == LOW) // Nos fijamos si el encoder cambió de estado respecto al anterior
     {
         if (digitalRead(encB) == LOW)
         {
-            pantalla = (pantalla + 1) % 2; // Giro derecha
+            pantalla = (pantalla + 1) % 2; // Giro derecha si B está en LOW
         }
         else
         {
-            pantalla = (pantalla - 1 + 2) % 2; // Giro izquierda
+            pantalla = (pantalla - 1 + 2) % 2; // Giro izquierda si B está en HIGH
         }
         Serial.print("Cambio a Pantalla: ");
         Serial.println(pantalla == 0 ? "TEMPERATURA" : "HUMEDAD");
@@ -81,14 +83,14 @@ void Device::controlVentilacion()
         if (!ventiladorActivo)
             Serial.println("Ventilacion ACTIVADA");
         ventiladorActivo = true;
-        digitalWrite(ledVerde, HIGH);
+        digitalWrite(ledVerde, HIGH); // Prende el led
     }
     else
     {
         if (ventiladorActivo)
             Serial.println("Ventilacion DESACTIVADA");
         ventiladorActivo = false;
-        digitalWrite(ledVerde, LOW);
+        digitalWrite(ledVerde, LOW); //Apaga el led
     }
 }
 
@@ -101,9 +103,9 @@ void Device::controlRiego()
         riegoActivo = true;
         if (millis() - ultimoParpadeo > 500)
         {
-            ultimoParpadeo = millis();
-            estadoLedRiego = !estadoLedRiego;
-            digitalWrite(ledVerde, estadoLedRiego);
+            ultimoParpadeo = millis(); // tiempo actual
+            estadoLedRiego = !estadoLedRiego; // Invierte el estado para que se encienda y se apague
+            digitalWrite(ledVerde, estadoLedRiego); // Cambia el estado del led
         }
     }
     else
