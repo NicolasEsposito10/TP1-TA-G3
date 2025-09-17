@@ -339,7 +339,7 @@ void Device::showMenu()
     // Opción 1
     if (opcionMenu == 1) display->print("> ");
     else display->print("  ");
-    display->println("2. Modificar valores");
+    display->println("2. Modif. valores");
     
     // Opción 2
     if (opcionMenu == 2) display->print("> ");
