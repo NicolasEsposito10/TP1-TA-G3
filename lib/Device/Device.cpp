@@ -6,7 +6,7 @@ Device::Device(uint8_t dhtPin, uint8_t dhtType, uint8_t potPin,
     : dht(dhtPin, dhtType), display(display),
       potPin(potPin), ledVerde(ledVerde),
       encA(encA), encB(encB), encBtn(encBtn) //Constructor
-{
+{   // inicializadores
     pantalla = 0;
     ventiladorActivo = false;
     riegoActivo = false;
