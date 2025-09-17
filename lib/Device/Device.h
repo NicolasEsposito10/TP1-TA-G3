@@ -39,11 +39,42 @@ private:
     int refTemp;
 
     int lastA;
+    
+    // Variables para el menú opcional
+    bool modoMenu;
+    int opcionMenu;
+    bool lastBtn;
+    unsigned long ultimoPresionBtn;
+    static const int DEBOUNCE_DELAY = 200;
+    static const int TOTAL_OPCIONES_MENU = 4;
+    
+    // Variables para control manual de valores
+    bool tempManual;
+    bool humedadManual;
+    int tempRefManual;
+    int humedadUmbralManual;
+    
+    // Variables para control manual de sistemas
+    bool ventilacionManual;
+    bool riegoManual;
+    bool ventilacionForzado;
+    bool riegoForzado;
+    
+    // Variables para navegación en control manual
+    int sistemaSeleccionado; // 0=ventilacion, 1=riego
+    int modoVentilacion; // 0=AUTO, 1=ON, 2=OFF
+    int modoRiego; // 0=AUTO, 1=ON, 2=OFF
 
     // Metodos que solo púede usar la propia clase
     void controlVentilacion();
     void controlRiego();
     void handleEncoder();
+    void handleMenu();
+    void showMenu();
+    void showEstadoCompleto();
+    void modificarValores();
+    void controlManual();
+    void showControlManual();
 };
 
 #endif
